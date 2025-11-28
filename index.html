@@ -822,28 +822,21 @@
         }
 
         function carregarAulas() {
-            console.log('Iniciando carregamento de aulas...');
-            
             fetch(API_AULAS)
-                .then(response => {
-                    console.log('Resposta recebida:', response);
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    console.log('Dados completos da API:', data);
-                    console.log('Dados das aulas:', data.dados);
+                    console.log('Dados recebidos da API:', data);
                     
                     if (data.dados && data.dados.length > 0) {
                         processarDadosGoogleSheets(data.dados);
                         atualizarEstatisticas();
                     } else {
-                        console.log('Nenhum dado encontrado');
                         document.getElementById('lista-categorias').innerHTML = 
                             '<div class="loading">Nenhuma aula encontrada na planilha</div>';
                     }
                 })
                 .catch(err => {
-                    console.error('Erro detalhado ao carregar aulas:', err);
+                    console.error('Erro ao carregar aulas:', err);
                     document.getElementById('lista-categorias').innerHTML = 
                         '<div class="loading">Erro ao carregar aulas. Verifique a conexão.</div>';
                 });
@@ -854,25 +847,26 @@
             aulasPorCategoria = {};
             
             dados.forEach(item => {
-                const categoria = item.categoria || "GERAL";
+                const categoria = item.categoria || item[""] || "GERAL";
                 const nome = item.nome || "Aula sem nome";
                 const url = item.url || "";
-                let tipo = (item.tipo || "video").toLowerCase();
+                let tipo = item.tipo || "video";
                 
-                // Normaliza o tipo (aceita "video", "vídeo", "pdf")
+                // Normaliza o tipo para aceitar "video", "vídeo", "pdf", "Pdf"
+                tipo = tipo.toLowerCase();
                 if (tipo.includes('vídeo')) {
                     tipo = 'video';
                 }
                 
-                // Filtra apenas conteúdos com URL válida do Google Drive
-                if (url && url.includes('drive.google.com')) {
+                // Filtra apenas vídeos e PDFs com URL válida do Google Drive
+                if (url && url.includes('drive.google.com') && (tipo === 'video' || tipo === 'pdf')) {
                     if (!aulasPorCategoria[categoria]) {
                         aulasPorCategoria[categoria] = [];
                     }
                     
                     const aula = {
                         nome: nome,
-                        url: converterUrlParaEmbed(url, tipo),
+                        url: converterUrlParaEmbed(url),
                         categoria: categoria,
                         tipo: tipo
                     };
@@ -882,24 +876,14 @@
                 }
             });
             
-            console.log('Aulas processadas:', todasAulas);
-            console.log('Categorias:', Object.keys(aulasPorCategoria));
-            
             renderizarCategorias();
         }
 
-        function converterUrlParaEmbed(url, tipo) {
+        function converterUrlParaEmbed(url) {
             // Converte URL normal do Google Drive para URL de embed
             if (url.includes('/file/d/')) {
                 const videoId = url.split('/file/d/')[1].split('/')[0];
-                
-                if (tipo === 'pdf') {
-                    // Para PDFs, usar visualização direta
-                    return `https://drive.google.com/file/d/${videoId}/view`;
-                } else {
-                    // Para vídeos, usar preview
-                    return `https://drive.google.com/file/d/${videoId}/preview`;
-                }
+                return `https://drive.google.com/file/d/${videoId}/preview`;
             }
             return url;
         }
@@ -910,7 +894,7 @@
             if (Object.keys(aulasPorCategoria).length === 0) {
                 container.innerHTML = `
                     <div class="loading">
-                        <p>Nenhum conteúdo encontrado na planilha.</p>
+                        <p>Nenhum vídeo encontrado na planilha.</p>
                         <p>Verifique se os links são do Google Drive e estão no formato correto.</p>
                     </div>
                 `;
@@ -951,7 +935,7 @@
                                 
                                 return `
                                 <div class="aula ${classes}" 
-                                     onclick="abrirAula('${aula.nome.replace(/'/g, "\\'")}', '${aula.url}', '${categoria.replace(/'/g, "\\'")}', ${index}, '${aula.tipo}')">
+                                     onclick="abrirAula('${aula.nome.replace(/'/g, "\\'")}', '${aula.url}', '${categoria.replace(/'/g, "\\'")}', ${index})">
                                     <div class="aula-status">
                                         ${concluida ? '✓' : (assistindo ? '▶' : (index + 1))}
                                     </div>
@@ -1006,8 +990,8 @@
             salvarDadosUsuario();
         }
 
-        function abrirAula(nome, url, categoria, index, tipo = 'video') {
-            aulaAtual = { nome, url, categoria, index, tipo };
+        function abrirAula(nome, url, categoria, index) {
+            aulaAtual = { nome, url, categoria, index };
             
             document.querySelectorAll('.aula').forEach(a => a.classList.remove('ativa'));
             event.currentTarget.classList.add('ativa');
@@ -1016,18 +1000,7 @@
             document.getElementById('video-modal').style.display = 'block';
             
             const iframe = document.getElementById('modal-video');
-            
-            if (tipo === 'pdf') {
-                // Para PDFs, mostrar mensagem ou abrir em nova aba
-                iframe.style.display = 'none';
-                alert('PDF detectado. Recomendamos abrir em nova janela.');
-                window.open(url, '_blank');
-                fecharModal();
-                return;
-            } else {
-                iframe.style.display = 'block';
-                iframe.src = url;
-            }
+            iframe.src = url;
             
             iniciarMonitoramentoProgresso();
             atualizarBotoesNavegacao();
@@ -1118,7 +1091,7 @@
             
             if (proximaIndex < aulasCategoria.length) {
                 const proximaAula = aulasCategoria[proximaIndex];
-                abrirAula(proximaAula.nome, proximaAula.url, aulaAtual.categoria, proximaIndex, proximaAula.tipo);
+                abrirAula(proximaAula.nome, proximaAula.url, aulaAtual.categoria, proximaIndex);
             }
         }
 
@@ -1130,7 +1103,7 @@
             
             if (anteriorIndex >= 0) {
                 const aulaAnterior = aulasCategoria[anteriorIndex];
-                abrirAula(aulaAnterior.nome, aulaAnterior.url, aulaAtual.categoria, anteriorIndex, aulaAnterior.tipo);
+                abrirAula(aulaAnterior.nome, aulaAnterior.url, aulaAtual.categoria, anteriorIndex);
             }
         }
 
