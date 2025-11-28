@@ -642,8 +642,7 @@
     </div>
 
     <script>
-        // URLs das APIs
-        const API_USUARIOS = "https://script.google.com/macros/s/AKfycbzaAF6RoDCbg3x5gAcRq-wm9uUcsh77NDKo4ORAa_HiL5vlhxsqzCdFeI7uUTx3qeDFQQ/exec";
+        // URL da API
         const API_AULAS = "https://script.google.com/macros/s/AKfycbzHoYUJ8INDFlmvd_BFkAh0SUCCBDEhs_nRIvb84VUgmzH9Q0X_S_Bgdmyc85CdVJrDqQ/exec";
         
         let usuarioLogado = null;
@@ -667,33 +666,14 @@
         });
 
         function carregarUsuarios() {
-            fetch(API_USUARIOS + '?action=usuarios')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        popularSelectUsuarios(data.usuarios);
-                    } else {
-                        // Fallback para usuários de demonstração
-                        const usuariosDemo = [
-                            { codigo: "1", apelido: "João Silva" },
-                            { codigo: "2", apelido: "Maria Santos" },
-                            { codigo: "3", apelido: "Pedro Oliveira" },
-                            { codigo: "4", apelido: "Ana Costa" }
-                        ];
-                        popularSelectUsuarios(usuariosDemo);
-                    }
-                })
-                .catch(err => {
-                    console.error('Erro ao carregar usuários:', err);
-                    // Fallback para usuários de demonstração
-                    const usuariosDemo = [
-                        { codigo: "1", apelido: "João Silva" },
-                        { codigo: "2", apelido: "Maria Santos" },
-                        { codigo: "3", apelido: "Pedro Oliveira" },
-                        { codigo: "4", apelido: "Ana Costa" }
-                    ];
-                    popularSelectUsuarios(usuariosDemo);
-                });
+            // Usuários de demonstração
+            const usuariosDemo = [
+                { codigo: "1", apelido: "João Silva" },
+                { codigo: "2", apelido: "Maria Santos" },
+                { codigo: "3", apelido: "Pedro Oliveira" },
+                { codigo: "4", apelido: "Ana Costa" }
+            ];
+            popularSelectUsuarios(usuariosDemo);
         }
 
         function popularSelectUsuarios(usuarios) {
@@ -737,38 +717,20 @@
             document.getElementById('btn-login').style.display = 'none';
             document.getElementById('login-loading').style.display = 'block';
             
-            // Tenta fazer login na API
-            fetch(API_USUARIOS + `?action=login&codigo=${codigo}&senha=${senha}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        usuarioLogado = data.usuario;
-                        entrarNaPlataforma();
-                    } else {
-                        // Fallback: senha = código + 1125
-                        const senhaEsperada = (parseInt(codigo) + 1125).toString();
-                        if (senha === senhaEsperada) {
-                            usuarioLogado = { codigo: codigo, apelido: nomeUsuario };
-                            entrarNaPlataforma();
-                        } else {
-                            mostrarErro(data.erro || 'Senha incorreta');
-                        }
-                    }
-                })
-                .catch(err => {
-                    // Fallback: senha = código + 1125
-                    const senhaEsperada = (parseInt(codigo) + 1125).toString();
-                    if (senha === senhaEsperada) {
-                        usuarioLogado = { codigo: codigo, apelido: nomeUsuario };
-                        entrarNaPlataforma();
-                    } else {
-                        mostrarErro('Erro de conexão. Tente novamente.');
-                    }
-                })
-                .finally(() => {
-                    document.getElementById('btn-login').style.display = 'block';
-                    document.getElementById('login-loading').style.display = 'none';
-                });
+            // Simulação de login
+            const senhaEsperada = (parseInt(codigo) + 1125).toString();
+            
+            setTimeout(() => {
+                if (senha === senhaEsperada) {
+                    usuarioLogado = { codigo: codigo, apelido: nomeUsuario };
+                    entrarNaPlataforma();
+                } else {
+                    mostrarErro('Senha incorreta. Dica: código + 1125');
+                }
+                
+                document.getElementById('btn-login').style.display = 'block';
+                document.getElementById('login-loading').style.display = 'none';
+            }, 1000);
         }
 
         function entrarNaPlataforma() {
@@ -827,7 +789,7 @@
                 .then(data => {
                     console.log('Dados recebidos da API:', data);
                     
-                    if (data.dados && data.dados.length > 0) {
+                    if (data.status === "ok" && data.dados && data.dados.length > 0) {
                         processarDadosGoogleSheets(data.dados);
                         atualizarEstatisticas();
                     } else {
@@ -847,13 +809,16 @@
             aulasPorCategoria = {};
             
             dados.forEach(item => {
-                const categoria = item.categoria || item[""] || "GERAL";
+                const categoria = item.categoria || "GERAL";
                 const nome = item.nome || "Aula sem nome";
                 const url = item.url || "";
-                const tipo = item.tipo || "video";
+                const tipo = item.tipo || "";
+                
+                // CORREÇÃO: Aceita tanto "vídeo" (com acento) quanto "video"
+                const ehVideo = tipo.toLowerCase().includes('video') || tipo.toLowerCase().includes('vídeo');
                 
                 // Filtra apenas vídeos com URL válida do Google Drive
-                if (url && url.includes('drive.google.com') && tipo === 'video') {
+                if (url && url.includes('drive.google.com') && ehVideo) {
                     if (!aulasPorCategoria[categoria]) {
                         aulasPorCategoria[categoria] = [];
                     }
@@ -869,6 +834,9 @@
                     aulasPorCategoria[categoria].push(aula);
                 }
             });
+            
+            console.log('Aulas processadas:', todasAulas);
+            console.log('Aulas por categoria:', aulasPorCategoria);
             
             renderizarCategorias();
         }
@@ -890,6 +858,10 @@
                     <div class="loading">
                         <p>Nenhum vídeo encontrado na planilha.</p>
                         <p>Verifique se os links são do Google Drive e estão no formato correto.</p>
+                        <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+                            Total de itens na API: ${todasAulas.length}<br>
+                            Categorias encontradas: ${Object.keys(aulasPorCategoria).join(', ')}
+                        </p>
                     </div>
                 `;
                 return;
