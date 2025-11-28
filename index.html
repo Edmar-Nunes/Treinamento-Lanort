@@ -476,85 +476,6 @@
     .btn-outline:hover {
         background: #dfe6e9;
     }
-
-    /* Seção de Arquivos */
-    .arquivos-section {
-        margin-top: 40px;
-        padding-top: 30px;
-        border-top: 2px solid var(--light);
-    }
-
-    .arquivos-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 15px;
-        margin-top: 20px;
-    }
-
-    .arquivo-card {
-        background: white;
-        border: 2px solid var(--light);
-        border-radius: 10px;
-        padding: 20px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border-left: 4px solid var(--secondary);
-    }
-
-    .arquivo-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        border-color: var(--secondary);
-    }
-
-    .arquivo-icon {
-        font-size: 2rem;
-        margin-bottom: 10px;
-    }
-
-    .arquivo-nome {
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 5px;
-    }
-
-    .arquivo-tipo {
-        display: inline-block;
-        background: var(--light);
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        color: var(--dark);
-        margin-top: 10px;
-    }
-
-    .arquivo-tipo.link {
-        background: #e3f2fd;
-        color: var(--secondary);
-    }
-
-    .arquivo-tipo.download {
-        background: #fff3e0;
-        color: var(--warning);
-    }
-
-    .acesso-status {
-        margin-top: 10px;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
-
-    .acesso-liberado {
-        background: #e8f5e8;
-        color: var(--success);
-    }
-
-    .acesso-bloqueado {
-        background: #ffebee;
-        color: var(--danger);
-    }
     
     @keyframes fadeIn {
         from { opacity: 0; }
@@ -607,10 +528,6 @@
         .modal-controls .btn {
             width: 100%;
             justify-content: center;
-        }
-
-        .arquivos-grid {
-            grid-template-columns: 1fr;
         }
     }
 </style>
@@ -693,14 +610,6 @@
                 <div id="lista-categorias">
                     <div class="loading">Carregando aulas...</div>
                 </div>
-
-                <!-- Seção de Arquivos -->
-                <div class="arquivos-section" id="arquivos-section" style="display: none;">
-                    <h2>📁 Arquivos e Links</h2>
-                    <div class="arquivos-grid" id="arquivos-grid">
-                        <div class="loading">Carregando arquivos...</div>
-                    </div>
-                </div>
             </div>
         </div>
         
@@ -733,14 +642,15 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzHoYUJ8INDFlmvd_BFkAh0SUCCBDEhs_nRIvb84VUgmzH9Q0X_S_Bgdmyc85CdVJrDqQ/exec";
+        // URLs das APIs
+        const API_USUARIOS = "https://script.google.com/macros/s/AKfycbzaAF6RoDCbg3x5gAcRq-wm9uUcsh77NDKo4ORAa_HiL5vlhxsqzCdFeI7uUTx3qeDFQQ/exec";
+        const API_AULAS = "https://script.google.com/macros/s/AKfycbzHoYUJ8INDFlmvd_BFkAh0SUCCBDEhs_nRIvb84VUgmzH9Q0X_S_Bgdmyc85CdVJrDqQ/exec";
         
         let usuarioLogado = null;
         let todasAulas = [];
         let aulasPorCategoria = {};
         let aulaAtual = null;
         let categoriasAbertas = {};
-        let arquivosUsuario = [];
         
         let progressoAulas = {};
         let aulasConcluidas = [];
@@ -757,19 +667,32 @@
         });
 
         function carregarUsuarios() {
-            fetch(API_URL + '?tipo=usuarios')
+            fetch(API_USUARIOS + '?action=usuarios')
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Dados de usuários:', data);
-                    if (data.status === "ok") {
-                        popularSelectUsuarios(data.dados);
+                    if (data.success) {
+                        popularSelectUsuarios(data.usuarios);
                     } else {
-                        mostrarErro('Erro ao carregar usuários: ' + data.mensagem);
+                        // Fallback para usuários de demonstração
+                        const usuariosDemo = [
+                            { codigo: "1", apelido: "João Silva" },
+                            { codigo: "2", apelido: "Maria Santos" },
+                            { codigo: "3", apelido: "Pedro Oliveira" },
+                            { codigo: "4", apelido: "Ana Costa" }
+                        ];
+                        popularSelectUsuarios(usuariosDemo);
                     }
                 })
                 .catch(err => {
                     console.error('Erro ao carregar usuários:', err);
-                    mostrarErro('Erro de conexão ao carregar usuários');
+                    // Fallback para usuários de demonstração
+                    const usuariosDemo = [
+                        { codigo: "1", apelido: "João Silva" },
+                        { codigo: "2", apelido: "Maria Santos" },
+                        { codigo: "3", apelido: "Pedro Oliveira" },
+                        { codigo: "4", apelido: "Ana Costa" }
+                    ];
+                    popularSelectUsuarios(usuariosDemo);
                 });
         }
 
@@ -780,20 +703,21 @@
             usuariosMap = {};
             
             usuarios.forEach(usuario => {
-                usuariosMap[usuario.codigo] = usuario;
+                usuariosMap[usuario.apelido] = usuario.codigo;
                 
                 const option = document.createElement('option');
-                option.value = usuario.codigo;
-                option.textContent = `${usuario.codigo} - ${usuario.apelido}`;
+                option.value = usuario.apelido;
+                option.textContent = usuario.apelido;
+                option.setAttribute('data-codigo', usuario.codigo);
                 select.appendChild(option);
             });
         }
 
         function fazerLogin() {
-            const codigoUsuario = document.getElementById('select-usuario').value;
+            const nomeUsuario = document.getElementById('select-usuario').value;
             const senha = document.getElementById('input-senha').value;
             
-            if (!codigoUsuario) {
+            if (!nomeUsuario) {
                 mostrarErro('Selecione um usuário');
                 return;
             }
@@ -803,64 +727,42 @@
                 return;
             }
             
-            document.getElementById('btn-login').style.display = 'none';
-            document.getElementById('login-loading').style.display = 'block';
+            const codigo = usuariosMap[nomeUsuario];
             
-            // Validação da senha: código + 1125
-            const senhaEsperada = (parseInt(codigoUsuario) + 1125).toString();
-            
-            if (senha !== senhaEsperada) {
-                mostrarErro('Senha incorreta. Dica: código + 1125');
-                document.getElementById('btn-login').style.display = 'block';
-                document.getElementById('login-loading').style.display = 'none';
+            if (!codigo) {
+                mostrarErro('Usuário não encontrado');
                 return;
             }
             
-            // Buscar dados do usuário via API
-            fetch(API_URL + `?codigo=${codigoUsuario}&senha=${senha}`)
+            document.getElementById('btn-login').style.display = 'none';
+            document.getElementById('login-loading').style.display = 'block';
+            
+            // Tenta fazer login na API
+            fetch(API_USUARIOS + `?action=login&codigo=${codigo}&senha=${senha}`)
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Resposta do login:', data);
-                    if (data.status === "ok") {
+                    if (data.success) {
                         usuarioLogado = data.usuario;
-                        usuarioLogado.codigo = codigoUsuario;
                         entrarNaPlataforma();
                     } else {
-                        // Fallback para dados locais
-                        const usuarioFallback = usuariosMap[codigoUsuario];
-                        if (usuarioFallback) {
-                            usuarioLogado = {
-                                codigo: codigoUsuario,
-                                apelido: usuarioFallback.apelido,
-                                aulasConcluidas: usuarioFallback['aulas concluídas'] || '',
-                                aulasDisponiveis: usuarioFallback['aulas disponíveis'] || '',
-                                ultimoAcesso: usuarioFallback['ultimo acesso'] || '',
-                                acessoTreinamento: usuarioFallback['acesso treinamento'] === 'sim',
-                                acessoLink: usuarioFallback['acesso link'] || ''
-                            };
+                        // Fallback: senha = código + 1125
+                        const senhaEsperada = (parseInt(codigo) + 1125).toString();
+                        if (senha === senhaEsperada) {
+                            usuarioLogado = { codigo: codigo, apelido: nomeUsuario };
                             entrarNaPlataforma();
                         } else {
-                            mostrarErro('Usuário não encontrado');
+                            mostrarErro(data.erro || 'Senha incorreta');
                         }
                     }
                 })
                 .catch(err => {
-                    console.error('Erro no login:', err);
-                    // Fallback para quando a API não está disponível
-                    const usuarioFallback = usuariosMap[codigoUsuario];
-                    if (usuarioFallback && senha === senhaEsperada) {
-                        usuarioLogado = {
-                            codigo: codigoUsuario,
-                            apelido: usuarioFallback.apelido,
-                            aulasConcluidas: usuarioFallback['aulas concluídas'] || '',
-                            aulasDisponiveis: usuarioFallback['aulas disponíveis'] || '',
-                            ultimoAcesso: usuarioFallback['ultimo acesso'] || '',
-                            acessoTreinamento: usuarioFallback['acesso treinamento'] === 'sim',
-                            acessoLink: usuarioFallback['acesso link'] || ''
-                        };
+                    // Fallback: senha = código + 1125
+                    const senhaEsperada = (parseInt(codigo) + 1125).toString();
+                    if (senha === senhaEsperada) {
+                        usuarioLogado = { codigo: codigo, apelido: nomeUsuario };
                         entrarNaPlataforma();
                     } else {
-                        mostrarErro('Erro de conexão. Verifique sua senha.');
+                        mostrarErro('Erro de conexão. Tente novamente.');
                     }
                 })
                 .finally(() => {
@@ -879,7 +781,6 @@
             document.getElementById('platform-container').style.display = 'block';
             
             carregarAulas();
-            carregarArquivos();
             document.getElementById('buscar-aula').addEventListener('input', filtrarAulas);
         }
 
@@ -891,12 +792,6 @@
                 aulasConcluidas = parsed.aulasConcluidas || [];
                 categoriasAbertas = parsed.categoriasAbertas || {};
             }
-            
-            // Processar aulas concluídas do usuário
-            if (usuarioLogado.aulasConcluidas) {
-                const aulasConcluidasUsuario = usuarioLogado.aulasConcluidas.split(',').map(a => a.trim()).filter(a => a);
-                aulasConcluidas = [...new Set([...aulasConcluidas, ...aulasConcluidasUsuario])];
-            }
         }
 
         function salvarDadosUsuario() {
@@ -906,172 +801,6 @@
                 categoriasAbertas: categoriasAbertas
             };
             localStorage.setItem(`progresso_${usuarioLogado.codigo}`, JSON.stringify(dados));
-        }
-
-        function carregarAulas() {
-            // Primeiro tenta carregar da aba Aulas
-            fetch(API_URL + '?tipo=aulas')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Dados das aulas:', data);
-                    if (data.status === "ok" && data.dados && data.dados.length > 0) {
-                        todasAulas = data.dados;
-                        processarAulas(todasAulas);
-                        atualizarEstatisticas();
-                    } else {
-                        // Se não encontrar aulas, tenta carregar sem parâmetro (endpoint padrão)
-                        console.log('Tentando carregar aulas sem parâmetro...');
-                        fetch(API_URL)
-                            .then(response => response.json())
-                            .then(data => {
-                                console.log('Dados sem parâmetro:', data);
-                                if (data.status === "ok" && data.dados && data.dados.length > 0) {
-                                    todasAulas = data.dados;
-                                    processarAulas(todasAulas);
-                                    atualizarEstatisticas();
-                                } else {
-                                    // Cria aulas de exemplo se a API não retornar nada
-                                    criarAulasExemplo();
-                                }
-                            })
-                            .catch(err => {
-                                console.error('Erro ao carregar aulas sem parâmetro:', err);
-                                criarAulasExemplo();
-                            });
-                    }
-                })
-                .catch(err => {
-                    console.error('Erro ao carregar aulas:', err);
-                    criarAulasExemplo();
-                });
-        }
-
-        function criarAulasExemplo() {
-            console.log('Criando aulas de exemplo...');
-            // Aulas de exemplo baseadas na estrutura da sua API
-            todasAulas = [
-                {
-                    categoria: "Introdução",
-                    nome: "Bem-vindo ao Treinamento",
-                    url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-                    tipo: "video"
-                },
-                {
-                    categoria: "Introdução", 
-                    nome: "Como Usar a Plataforma",
-                    url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-                    tipo: "video"
-                },
-                {
-                    categoria: "Marketing Digital",
-                    nome: "Fundamentos do Marketing",
-                    url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-                    tipo: "video"
-                },
-                {
-                    categoria: "Marketing Digital",
-                    nome: "Estratégias de Conteúdo",
-                    url: "https://www.youtube.com/embed/dQw4w9WgXcQ", 
-                    tipo: "video"
-                },
-                {
-                    categoria: "Vendas",
-                    nome: "Técnicas de Vendas",
-                    url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-                    tipo: "video"
-                }
-            ];
-            
-            processarAulas(todasAulas);
-            atualizarEstatisticas();
-            
-            // Mostra mensagem informativa
-            const container = document.getElementById('lista-categorias');
-            container.innerHTML = `
-                <div style="background: #e3f2fd; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                    <p><strong>💡 Informação:</strong> Carregadas aulas de demonstração.</p>
-                    <p style="font-size: 0.9rem; margin-top: 5px;">Configure as aulas reais na aba "Aulas" do Google Sheets.</p>
-                </div>
-                ${container.innerHTML}
-            `;
-        }
-
-        function carregarArquivos() {
-            fetch(API_URL + '?tipo=arquivos')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Dados dos arquivos:', data);
-                    if (data.status === "ok") {
-                        const todosArquivos = data.dados;
-                        processarArquivosUsuario(todosArquivos);
-                    } else {
-                        document.getElementById('arquivos-grid').innerHTML = 
-                            '<div class="loading">Erro ao carregar arquivos</div>';
-                    }
-                })
-                .catch(err => {
-                    console.error('Erro ao carregar arquivos:', err);
-                    document.getElementById('arquivos-grid').innerHTML = 
-                        '<div class="loading">Erro de conexão ao carregar arquivos</div>';
-                });
-        }
-
-        function processarArquivosUsuario(todosArquivos) {
-            if (!usuarioLogado.acessoLink) {
-                document.getElementById('arquivos-section').style.display = 'none';
-                return;
-            }
-
-            const idsAcesso = usuarioLogado.acessoLink.split(',').map(id => id.trim());
-            arquivosUsuario = todosArquivos.filter(arquivo => 
-                idsAcesso.includes(arquivo.id.toString())
-            );
-
-            if (arquivosUsuario.length > 0) {
-                document.getElementById('arquivos-section').style.display = 'block';
-                renderizarArquivos();
-            } else {
-                document.getElementById('arquivos-section').style.display = 'none';
-            }
-        }
-
-        function renderizarArquivos() {
-            const container = document.getElementById('arquivos-grid');
-            
-            if (arquivosUsuario.length === 0) {
-                container.innerHTML = '<div class="loading">Nenhum arquivo disponível</div>';
-                return;
-            }
-
-            let html = '';
-            arquivosUsuario.forEach(arquivo => {
-                const tipo = arquivo.tipo || 'link';
-                const icon = tipo === 'download' ? '📥' : '🔗';
-                const tipoClass = tipo === 'download' ? 'download' : 'link';
-                
-                html += `
-                    <div class="arquivo-card" onclick="abrirArquivo('${arquivo.link}', '${tipo}')">
-                        <div class="arquivo-icon">${icon}</div>
-                        <div class="arquivo-nome">${arquivo.nome}</div>
-                        <div class="arquivo-tipo ${tipoClass}">${tipo}</div>
-                        <div class="acesso-status acesso-liberado">✅ Acesso Liberado</div>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-        }
-
-        function abrirArquivo(link, tipo) {
-            if (link) {
-                if (tipo === 'download') {
-                    window.open(link, '_blank');
-                } else {
-                    window.open(link, '_blank');
-                }
-            } else {
-                alert('Link não disponível para este arquivo.');
-            }
         }
 
         function fazerLogout() {
@@ -1092,42 +821,85 @@
             }, 5000);
         }
 
-        function processarAulas(aulas) {
+        function carregarAulas() {
+            console.log('Iniciando carregamento de aulas...');
+            
+            fetch(API_AULAS)
+                .then(response => {
+                    console.log('Resposta recebida:', response);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Dados completos da API:', data);
+                    console.log('Dados das aulas:', data.dados);
+                    
+                    if (data.dados && data.dados.length > 0) {
+                        processarDadosGoogleSheets(data.dados);
+                        atualizarEstatisticas();
+                    } else {
+                        console.log('Nenhum dado encontrado');
+                        document.getElementById('lista-categorias').innerHTML = 
+                            '<div class="loading">Nenhuma aula encontrada na planilha</div>';
+                    }
+                })
+                .catch(err => {
+                    console.error('Erro detalhado ao carregar aulas:', err);
+                    document.getElementById('lista-categorias').innerHTML = 
+                        '<div class="loading">Erro ao carregar aulas. Verifique a conexão.</div>';
+                });
+        }
+
+        function processarDadosGoogleSheets(dados) {
+            todasAulas = [];
             aulasPorCategoria = {};
             
-            aulas.forEach(aula => {
-                if (!aulasPorCategoria[aula.categoria]) {
-                    aulasPorCategoria[aula.categoria] = [];
+            dados.forEach(item => {
+                const categoria = item.categoria || "GERAL";
+                const nome = item.nome || "Aula sem nome";
+                const url = item.url || "";
+                let tipo = (item.tipo || "video").toLowerCase();
+                
+                // Normaliza o tipo (aceita "video", "vídeo", "pdf")
+                if (tipo.includes('vídeo')) {
+                    tipo = 'video';
                 }
                 
-                const progresso = progressoAulas[aula.nome] || { tempo: 0, duracao: 0, percentual: 0 };
-                const concluida = aulasConcluidas.includes(aula.nome);
-                const assistindo = progresso.percentual > 0 && progresso.percentual < 95;
-                
-                // CORREÇÃO: Aceita tanto "vídeo" (com acento) quanto "video"
-                const ehVideo = aula.tipo.toLowerCase().includes('video') || aula.tipo.toLowerCase().includes('vídeo');
-                
-                // CORREÇÃO: Converte URL para embed
-                const urlEmbed = converterUrlParaEmbed(aula.url);
-                
-                aulasPorCategoria[aula.categoria].push({
-                    ...aula,
-                    url: urlEmbed,
-                    progresso: progresso,
-                    concluida: concluida,
-                    assistindo: assistindo,
-                    ehVideo: ehVideo
-                });
+                // Filtra apenas conteúdos com URL válida do Google Drive
+                if (url && url.includes('drive.google.com')) {
+                    if (!aulasPorCategoria[categoria]) {
+                        aulasPorCategoria[categoria] = [];
+                    }
+                    
+                    const aula = {
+                        nome: nome,
+                        url: converterUrlParaEmbed(url, tipo),
+                        categoria: categoria,
+                        tipo: tipo
+                    };
+                    
+                    todasAulas.push(aula);
+                    aulasPorCategoria[categoria].push(aula);
+                }
             });
-
+            
+            console.log('Aulas processadas:', todasAulas);
+            console.log('Categorias:', Object.keys(aulasPorCategoria));
+            
             renderizarCategorias();
         }
 
-        // CORREÇÃO: Função para converter URL do Google Drive para embed
-        function converterUrlParaEmbed(url) {
-            if (url && url.includes('drive.google.com') && url.includes('/file/d/')) {
+        function converterUrlParaEmbed(url, tipo) {
+            // Converte URL normal do Google Drive para URL de embed
+            if (url.includes('/file/d/')) {
                 const videoId = url.split('/file/d/')[1].split('/')[0];
-                return `https://drive.google.com/file/d/${videoId}/preview`;
+                
+                if (tipo === 'pdf') {
+                    // Para PDFs, usar visualização direta
+                    return `https://drive.google.com/file/d/${videoId}/view`;
+                } else {
+                    // Para vídeos, usar preview
+                    return `https://drive.google.com/file/d/${videoId}/preview`;
+                }
             }
             return url;
         }
@@ -1136,13 +908,18 @@
             const container = document.getElementById('lista-categorias');
             
             if (Object.keys(aulasPorCategoria).length === 0) {
-                container.innerHTML = '<div class="loading">Nenhuma aula encontrada</div>';
+                container.innerHTML = `
+                    <div class="loading">
+                        <p>Nenhum conteúdo encontrado na planilha.</p>
+                        <p>Verifique se os links são do Google Drive e estão no formato correto.</p>
+                    </div>
+                `;
                 return;
             }
 
             let html = '';
             for (const [categoria, aulas] of Object.entries(aulasPorCategoria)) {
-                const aulasConcluidasCategoria = aulas.filter(a => a.concluida).length;
+                const aulasConcluidasCategoria = aulas.filter(a => aulasConcluidas.includes(a.nome)).length;
                 const progressoCategoria = aulas.length > 0 ? (aulasConcluidasCategoria / aulas.length) * 100 : 0;
                 const categoriaConcluida = progressoCategoria === 100;
                 const categoriaAberta = categoriasAbertas[categoria] && !categoriaConcluida;
@@ -1159,20 +936,24 @@
                         </div>
                         <div class="aulas-container" id="aulas-${categoria.replace(/\s+/g, '-')}">
                             ${aulas.map((aula, index) => {
+                                const concluida = aulasConcluidas.includes(aula.nome);
+                                const progresso = progressoAulas[aula.nome] || { tempo: 0, percentual: 0 };
+                                const assistindo = progresso.percentual > 0 && progresso.percentual < 95;
+                                
                                 const classes = [
-                                    aula.concluida ? 'assistida' : '',
-                                    aula.assistindo ? 'assistindo' : '',
+                                    concluida ? 'assistida' : '',
+                                    assistindo ? 'assistindo' : '',
                                     aulaAtual && aula.nome === aulaAtual.nome ? 'ativa' : ''
                                 ].filter(c => c).join(' ');
                                 
-                                const tempoAssistido = formatarTempo(aula.progresso.tempo);
-                                const percentual = aula.progresso.percentual || 0;
+                                const tempoAssistido = formatarTempo(progresso.tempo);
+                                const percentual = progresso.percentual || 0;
                                 
                                 return `
                                 <div class="aula ${classes}" 
-                                     onclick="abrirAula('${aula.nome.replace(/'/g, "\\'")}', '${aula.url}', '${categoria.replace(/'/g, "\\'")}', ${index})">
+                                     onclick="abrirAula('${aula.nome.replace(/'/g, "\\'")}', '${aula.url}', '${categoria.replace(/'/g, "\\'")}', ${index}, '${aula.tipo}')">
                                     <div class="aula-status">
-                                        ${aula.concluida ? '✓' : (aula.assistindo ? '▶' : (index + 1))}
+                                        ${concluida ? '✓' : (assistindo ? '▶' : (index + 1))}
                                     </div>
                                     <div class="aula-info">
                                         <div class="aula-nome">${aula.nome}</div>
@@ -1193,28 +974,14 @@
                 `;
             }
             container.innerHTML = html;
-            
-            // Mostrar status do acesso ao treinamento
-            if (!usuarioLogado.acessoTreinamento) {
-                container.innerHTML = `
-                    <div class="loading" style="background: #ffebee; color: #e74c3c; padding: 20px; border-radius: 10px;">
-                        <h3>❌ Acesso ao Treinamento Bloqueado</h3>
-                        <p>Entre em contato com o administrador para liberar seu acesso.</p>
-                    </div>
-                `;
-            }
         }
 
         function toggleCategoria(categoria) {
-            if (!usuarioLogado.acessoTreinamento) {
-                mostrarErro('Você não tem acesso ao treinamento. Entre em contato com o administrador.');
-                return;
-            }
-            
             const categoriaElement = document.querySelector(`[onclick="toggleCategoria('${categoria}')"]`);
             const aulasContainer = document.getElementById(`aulas-${categoria.replace(/\s+/g, '-')}`);
             const estaAberta = categoriaElement.classList.contains('aberta');
             
+            // Fecha todas as outras categorias
             document.querySelectorAll('.categoria-header.aberta').forEach(header => {
                 if (header !== categoriaElement) {
                     header.classList.remove('aberta');
@@ -1225,6 +992,7 @@
                 }
             });
             
+            // Alterna a categoria atual
             if (estaAberta) {
                 categoriaElement.classList.remove('aberta');
                 aulasContainer.style.display = 'none';
@@ -1238,13 +1006,8 @@
             salvarDadosUsuario();
         }
 
-        function abrirAula(nome, url, categoria, index) {
-            if (!usuarioLogado.acessoTreinamento) {
-                mostrarErro('Você não tem acesso ao treinamento. Entre em contato com o administrador.');
-                return;
-            }
-            
-            aulaAtual = { nome, url, categoria, index };
+        function abrirAula(nome, url, categoria, index, tipo = 'video') {
+            aulaAtual = { nome, url, categoria, index, tipo };
             
             document.querySelectorAll('.aula').forEach(a => a.classList.remove('ativa'));
             event.currentTarget.classList.add('ativa');
@@ -1253,7 +1016,18 @@
             document.getElementById('video-modal').style.display = 'block';
             
             const iframe = document.getElementById('modal-video');
-            iframe.src = url + (url.includes('?') ? '&' : '?') + 'autoplay=1';
+            
+            if (tipo === 'pdf') {
+                // Para PDFs, mostrar mensagem ou abrir em nova aba
+                iframe.style.display = 'none';
+                alert('PDF detectado. Recomendamos abrir em nova janela.');
+                window.open(url, '_blank');
+                fecharModal();
+                return;
+            } else {
+                iframe.style.display = 'block';
+                iframe.src = url;
+            }
             
             iniciarMonitoramentoProgresso();
             atualizarBotoesNavegacao();
@@ -1264,7 +1038,7 @@
             document.getElementById('modal-video').src = '';
             
             pararMonitoramentoProgresso();
-            processarAulas(todasAulas);
+            renderizarCategorias();
             atualizarEstatisticas();
             salvarDadosUsuario();
             
@@ -1273,7 +1047,7 @@
 
         function verificarCategoriasConcluidas() {
             for (const [categoria, aulas] of Object.entries(aulasPorCategoria)) {
-                const aulasConcluidasCategoria = aulas.filter(a => a.concluida).length;
+                const aulasConcluidasCategoria = aulas.filter(a => aulasConcluidas.includes(a.nome)).length;
                 const progressoCategoria = aulas.length > 0 ? (aulasConcluidasCategoria / aulas.length) * 100 : 0;
                 
                 if (progressoCategoria === 100) {
@@ -1294,11 +1068,10 @@
             
             window.progressInterval = setInterval(() => {
                 if (aulaAtual) {
-                    const progressoAtual = progressoAulas[aulaAtual.nome] || { tempo: 0, duracao: 0, percentual: 0 };
+                    const progressoAtual = progressoAulas[aulaAtual.nome] || { tempo: 0, percentual: 0 };
                     
                     progressoAtual.tempo += 10;
-                    progressoAtual.duracao = progressoAtual.duracao || 600;
-                    progressoAtual.percentual = Math.min(100, (progressoAtual.tempo / progressoAtual.duracao) * 100);
+                    progressoAtual.percentual = Math.min(100, progressoAtual.percentual + 5);
                     
                     progressoAulas[aulaAtual.nome] = progressoAtual;
                     
@@ -1324,7 +1097,6 @@
                 
                 if (progressoAulas[aulaAtual.nome]) {
                     progressoAulas[aulaAtual.nome].percentual = 100;
-                    progressoAulas[aulaAtual.nome].tempo = progressoAulas[aulaAtual.nome].duracao || 600;
                 }
                 
                 const btnConcluir = document.getElementById('btn-concluir');
@@ -1346,19 +1118,7 @@
             
             if (proximaIndex < aulasCategoria.length) {
                 const proximaAula = aulasCategoria[proximaIndex];
-                const elementos = document.querySelectorAll('.aula');
-                let elementoProxima = null;
-                
-                for (let el of elementos) {
-                    if (el.querySelector('.aula-nome').textContent === proximaAula.nome) {
-                        elementoProxima = el;
-                        break;
-                    }
-                }
-                
-                if (elementoProxima) {
-                    abrirAula(proximaAula.nome, proximaAula.url, aulaAtual.categoria, proximaIndex);
-                }
+                abrirAula(proximaAula.nome, proximaAula.url, aulaAtual.categoria, proximaIndex, proximaAula.tipo);
             }
         }
 
@@ -1370,19 +1130,7 @@
             
             if (anteriorIndex >= 0) {
                 const aulaAnterior = aulasCategoria[anteriorIndex];
-                const elementos = document.querySelectorAll('.aula');
-                let elementoAnterior = null;
-                
-                for (let el of elementos) {
-                    if (el.querySelector('.aula-nome').textContent === aulaAnterior.nome) {
-                        elementoAnterior = el;
-                        break;
-                    }
-                }
-                
-                if (elementoAnterior) {
-                    abrirAula(aulaAnterior.nome, aulaAnterior.url, aulaAtual.categoria, anteriorIndex);
-                }
+                abrirAula(aulaAnterior.nome, aulaAnterior.url, aulaAtual.categoria, anteriorIndex, aulaAnterior.tipo);
             }
         }
 
@@ -1417,7 +1165,7 @@
             const termo = document.getElementById('buscar-aula').value.toLowerCase();
             
             if (termo === '') {
-                processarAulas(todasAulas);
+                renderizarCategorias();
                 return;
             }
             
@@ -1426,7 +1174,16 @@
                 aula.categoria.toLowerCase().includes(termo)
             );
             
-            processarAulas(aulasFiltradas);
+            const aulasFiltradasPorCategoria = {};
+            aulasFiltradas.forEach(aula => {
+                if (!aulasFiltradasPorCategoria[aula.categoria]) {
+                    aulasFiltradasPorCategoria[aula.categoria] = [];
+                }
+                aulasFiltradasPorCategoria[aula.categoria].push(aula);
+            });
+            
+            aulasPorCategoria = aulasFiltradasPorCategoria;
+            renderizarCategorias();
         }
 
         function formatarTempo(segundos) {
