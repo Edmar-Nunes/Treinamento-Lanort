@@ -42,24 +42,8 @@
     }
     
     .logo {
-        width: 120px;
-        height: 120px;
-        margin: 0 auto 20px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
         font-size: 3rem;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-    }
-    
-    .logo-image {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        object-fit: cover;
+        margin-bottom: 20px;
     }
     
     .login-title {
@@ -168,25 +152,17 @@
     }
     
     .user-avatar {
-        width: 80px;
-        height: 80px;
+        width: 70px;
+        height: 70px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--secondary);
         color: white;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         font-weight: bold;
-        margin: 0 auto 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    
-    .user-avatar-image {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        object-fit: cover;
+        margin: 0 auto 10px;
     }
     
     .logout-btn {
@@ -252,31 +228,6 @@
         margin-bottom: 30px;
         padding-bottom: 20px;
         border-bottom: 2px solid var(--light);
-    }
-    
-    .header-logo {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-    
-    .header-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-    }
-    
-    .header-icon-image {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        object-fit: cover;
     }
     
     .categoria {
@@ -584,11 +535,7 @@
 <body>
     <!-- Tela de Login -->
     <div class="login-container" id="login-container">
-        <div class="logo">
-            <!-- Substitua pela URL da sua imagem -->
-            <div class="logo-image-placeholder">🎓</div>
-            <!-- <img src="SUA_IMAGEM_AQUI" alt="Logo" class="logo-image"> -->
-        </div>
+        <div class="logo">🎓</div>
         <h1 class="login-title">Plataforma de Treinamento</h1>
         <p class="login-subtitle">Faça login para acessar o conteúdo</p>
         
@@ -621,10 +568,7 @@
             <!-- Sidebar -->
             <div class="sidebar">
                 <div class="user-info">
-                    <div class="user-avatar">
-                        <div class="user-avatar-image-placeholder">👤</div>
-                        <!-- <img src="SUA_IMAGEM_PERFIL" alt="Perfil" class="user-avatar-image"> -->
-                    </div>
+                    <div class="user-avatar" id="user-avatar">U</div>
                     <h3 id="user-name">Usuário</h3>
                     <p>Bem-vindo ao treinamento!</p>
                     <button class="logout-btn" onclick="fazerLogout()">Sair</button>
@@ -655,13 +599,7 @@
             <!-- Conteúdo Principal -->
             <div class="main-content">
                 <div class="header">
-                    <div class="header-logo">
-                        <div class="header-icon">
-                            <div class="header-icon-image-placeholder">📚</div>
-                            <!-- <img src="SUA_IMAGEM_AQUI" alt="Ícone" class="header-icon-image"> -->
-                        </div>
-                        <h1>Plataforma de Treinamento</h1>
-                    </div>
+                    <h1>Plataforma de Treinamento</h1>
                     <div class="search-box">
                         <input type="text" placeholder="Buscar aulas..." id="buscar-aula" 
                                style="padding: 12px; border: 2px solid #ddd; border-radius: 8px; width: 250px;">
