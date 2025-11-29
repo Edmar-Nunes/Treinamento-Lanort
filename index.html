@@ -1,548 +1,684 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plataforma de Treinamento</title>
-<style>
-    :root {
-        --primary: #2c3e50;
-        --secondary: #3498db;
-        --success: #27ae60;
-        --warning: #f39c12;
-        --danger: #e74c3c;
-        --light: #ecf0f1;
-        --dark: #34495e;
-    }
-    
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-    
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    }
-    
-    .login-container {
-        background: white;
-        border-radius: 20px;
-        padding: 40px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        width: 100%;
-        max-width: 450px;
-        text-align: center;
-    }
-    
-    .logo {
-        font-size: 3rem;
-        margin-bottom: 20px;
-    }
-    
-    .login-title {
-        color: var(--primary);
-        margin-bottom: 10px;
-        font-size: 1.8rem;
-    }
-    
-    .login-subtitle {
-        color: var(--dark);
-        margin-bottom: 30px;
-        opacity: 0.8;
-    }
-    
-    .form-group {
-        margin-bottom: 20px;
-        text-align: left;
-    }
-    
-    .form-label {
-        display: block;
-        margin-bottom: 8px;
-        color: var(--dark);
-        font-weight: 600;
-    }
-    
-    .form-select, .form-input {
-        width: 100%;
-        padding: 15px;
-        border: 2px solid #ddd;
-        border-radius: 10px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-    
-    .form-select:focus, .form-input:focus {
-        outline: none;
-        border-color: var(--secondary);
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-    }
-    
-    .btn {
-        width: 100%;
-        padding: 15px;
-        border: none;
-        border-radius: 10px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 10px;
-    }
-    
-    .btn-primary {
-        background: var(--secondary);
-        color: white;
-    }
-    
-    .btn-primary:hover {
-        background: #2980b9;
-        transform: translateY(-2px);
-    }
-    
-    .error-message {
-        background: #ffeaa7;
-        color: #d63031;
-        padding: 12px;
-        border-radius: 8px;
-        margin: 15px 0;
-        display: none;
-    }
-    
-    .loading {
-        text-align: center;
-        padding: 20px;
-        color: var(--dark);
-    }
-    
-    .platform-container {
-        display: none;
-        width: 100%;
-        max-width: 1200px;
-    }
-    
-    .container {
-        display: grid;
-        grid-template-columns: 300px 1fr;
-        gap: 20px;
-    }
-    
-    .sidebar {
-        background: white;
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        height: fit-content;
-        position: sticky;
-        top: 20px;
-    }
-    
-    .user-info {
-        text-align: center;
-        padding: 20px 0;
-        border-bottom: 2px solid var(--light);
-        margin-bottom: 20px;
-    }
-    
-    .user-avatar {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        background: var(--secondary);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        font-weight: bold;
-        margin: 0 auto 10px;
-    }
-    
-    .logout-btn {
-        background: var(--danger);
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 5px;
-        cursor: pointer;
-        margin-top: 10px;
-        font-size: 0.9rem;
-    }
-    
-    .progress-section {
-        margin: 20px 0;
-    }
-    
-    .progress-bar {
-        width: 100%;
-        height: 10px;
-        background: var(--light);
-        border-radius: 10px;
-        overflow: hidden;
-        margin: 10px 0;
-    }
-    
-    .progress-fill {
-        height: 100%;
-        background: var(--success);
-        transition: width 0.5s ease;
-    }
-    
-    .progress-text {
-        font-size: 0.9rem;
-        color: var(--dark);
-        text-align: center;
-        font-weight: 600;
-    }
-    
-    .stats {
-        background: var(--light);
-        padding: 15px;
-        border-radius: 10px;
-        margin-top: 20px;
-    }
-    
-    .stat-item {
-        margin: 10px 0;
-        font-size: 0.9rem;
-    }
-    
-    .main-content {
-        background: white;
-        border-radius: 15px;
-        padding: 30px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-    }
-    
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-        padding-bottom: 20px;
-        border-bottom: 2px solid var(--light);
-    }
-    
-    .categoria {
-        margin-bottom: 15px;
-    }
-    
-    .categoria-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px 20px;
-        background: var(--light);
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-    }
-    
-    .categoria-header:hover {
-        background: #d5dbdb;
-    }
-    
-    .categoria-header.concluida {
-        background: var(--success);
-        color: white;
-    }
-    
-    .categoria-header.concluida .categoria-title,
-    .categoria-header.concluida .categoria-progress,
-    .categoria-header.concluida .categoria-arrow {
-        color: white;
-    }
-    
-    .categoria-title {
-        font-size: 1.2rem;
-        color: var(--primary);
-        font-weight: 600;
-    }
-    
-    .categoria-progress {
-        font-size: 0.8rem;
-        color: var(--dark);
-    }
-    
-    .categoria-arrow {
-        font-size: 1.2rem;
-        transition: transform 0.3s ease;
-        color: var(--dark);
-    }
-    
-    .categoria-header.aberta .categoria-arrow {
-        transform: rotate(180deg);
-    }
-    
-    .aulas-container {
-        display: none;
-        gap: 8px;
-        margin-top: 10px;
-        animation: slideDown 0.3s ease;
-    }
-    
-    .categoria-header.aberta + .aulas-container {
-        display: grid;
-    }
-    
-    .aula {
-        display: flex;
-        align-items: center;
-        padding: 15px;
-        background: white;
-        border: 2px solid var(--light);
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-    }
-    
-    .aula:hover {
-        border-color: var(--secondary);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
-    }
-    
-    .aula.assistida {
-        border-color: var(--success);
-        background: #f8fff9;
-    }
-    
-    .aula.assistindo {
-        border-color: var(--warning);
-        background: #fffaf0;
-    }
-    
-    .aula.ativa {
-        border-color: var(--secondary);
-        background: #f0f8ff;
-    }
-    
-    .aula-status {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        border: 2px solid #bdc3c7;
-        margin-right: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.9rem;
-        font-weight: bold;
-        transition: all 0.3s ease;
-    }
-    
-    .aula.assistida .aula-status {
-        background: var(--success);
-        border-color: var(--success);
-        color: white;
-    }
-    
-    .aula.assistindo .aula-status {
-        background: var(--warning);
-        border-color: var(--warning);
-        color: white;
-    }
-    
-    .aula-info {
-        flex: 1;
-    }
-    
-    .aula-nome {
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 4px;
-    }
-    
-    .aula-progresso {
-        height: 4px;
-        background: #ecf0f1;
-        border-radius: 2px;
-        margin-top: 5px;
-        overflow: hidden;
-    }
-    
-    .aula-progresso-interno {
-        height: 100%;
-        background: var(--success);
-        transition: width 0.3s ease;
-        width: 0%;
-    }
-    
-    .aula-tempo {
-        font-size: 0.8rem;
-        color: #7f8c8d;
-        margin-left: 15px;
-        white-space: nowrap;
-    }
-    
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.9);
-        z-index: 1000;
-        animation: fadeIn 0.3s ease;
-    }
-    
-    .modal-content {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 90%;
-        max-width: 1000px;
-        background: white;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-    
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 25px;
-        background: var(--primary);
-        color: white;
-    }
-    
-    .modal-title {
-        font-size: 1.3rem;
-        font-weight: 600;
-    }
-    
-    .close-modal {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.5rem;
-        cursor: pointer;
-        padding: 5px;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.3s ease;
-    }
-    
-    .close-modal:hover {
-        background: rgba(255,255,255,0.2);
-    }
-    
-    .modal-body {
-        padding: 0;
-    }
-    
-    .modal-video {
-        width: 100%;
-        height: 500px;
-        border: none;
-        display: block;
-    }
-    
-    .modal-controls {
-        padding: 20px;
-        background: var(--light);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .btn-outline {
-        background: transparent;
-        color: var(--dark);
-        border: 2px solid #bdc3c7;
-        padding: 10px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-outline:hover {
-        background: #dfe6e9;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    
-    @keyframes slideDown {
-        from { 
-            opacity: 0;
-            transform: translateY(-10px);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Treinamento</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
         }
-        to { 
-            opacity: 1;
-            transform: translateY(0);
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-    }
-    
-    @media (max-width: 768px) {
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
         .login-container {
-            padding: 30px 20px;
-        }
-        
-        .container {
-            grid-template-columns: 1fr;
-        }
-        
-        .sidebar {
-            position: static;
-        }
-        
-        .header {
-            flex-direction: column;
-            gap: 15px;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 450px;
             text-align: center;
         }
         
-        .modal-video {
-            height: 300px;
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .login-title {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+        
+        .login-subtitle {
+            color: var(--dark);
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        .form-select, .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #219a52;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        
+        .error-message {
+            background: #ffeaa7;
+            color: #d63031;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--dark);
+        }
+        
+        .platform-container {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .user-info {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid var(--light);
+            margin-bottom: 20px;
+        }
+        
+        .user-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--secondary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 10px;
+        }
+        
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+        
+        .acessos-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+        
+        .progress-section {
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: var(--light);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--dark);
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .stats {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .categoria {
+            margin-bottom: 15px;
+        }
+        
+        .categoria-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: var(--light);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .categoria-header:hover {
+            background: #d5dbdb;
+        }
+        
+        .categoria-header.concluida {
+            background: var(--success);
+            color: white;
+        }
+        
+        .categoria-header.concluida .categoria-title,
+        .categoria-header.concluida .categoria-progress,
+        .categoria-header.concluida .categoria-arrow {
+            color: white;
+        }
+        
+        .categoria-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .categoria-progress {
+            font-size: 0.8rem;
+            color: var(--dark);
+        }
+        
+        .categoria-arrow {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+            color: var(--dark);
+        }
+        
+        .categoria-header.aberta .categoria-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .aulas-container {
+            display: none;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .categoria-header.aberta + .aulas-container {
+            display: grid;
+        }
+        
+        .aula {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 2px solid var(--light);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .aula:hover {
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+        }
+        
+        .aula.assistida {
+            border-color: var(--success);
+            background: #f8fff9;
+        }
+        
+        .aula.assistindo {
+            border-color: var(--warning);
+            background: #fffaf0;
+        }
+        
+        .aula.ativa {
+            border-color: var(--secondary);
+            background: #f0f8ff;
+        }
+        
+        .aula-status {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #bdc3c7;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .aula.assistida .aula-status {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        
+        .aula.assistindo .aula-status {
+            background: var(--warning);
+            border-color: var(--warning);
+            color: white;
+        }
+        
+        .aula-info {
+            flex: 1;
+        }
+        
+        .aula-nome {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+        
+        .aula-progresso {
+            height: 4px;
+            background: #ecf0f1;
+            border-radius: 2px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .aula-progresso-interno {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .aula-tempo {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-left: 15px;
+            white-space: nowrap;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
         }
         
         .modal-content {
-            width: 95%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            background: var(--primary);
+            color: white;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-modal:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .modal-body {
+            padding: 0;
+        }
+        
+        .modal-video {
+            width: 100%;
+            height: 500px;
+            border: none;
+            display: block;
         }
         
         .modal-controls {
-            flex-direction: column;
+            padding: 20px;
+            background: var(--light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             gap: 10px;
         }
         
-        .modal-controls .btn {
+        .modal-acessos {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            justify-content: center;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
         }
-    }
-</style>
+        
+        .modal-acessos-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-acessos-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            background: var(--success);
+            color: white;
+        }
+        
+        .modal-acessos-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .modal-acessos-body {
+            padding: 25px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .arquivo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid var(--light);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .arquivo-item:hover {
+            border-color: var(--success);
+            background: #f8fff9;
+        }
+        
+        .arquivo-info {
+            flex: 1;
+        }
+        
+        .arquivo-nome {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        
+        .arquivo-tipo {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            background: var(--light);
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        
+        .arquivo-link {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+        
+        .arquivo-link:hover {
+            background: #2980b9;
+        }
+        
+        .arquivo-download {
+            background: var(--warning);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+        
+        .arquivo-download:hover {
+            background: #e67e22;
+        }
+        
+        .sem-acessos {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .btn-outline:hover {
+            background: #dfe6e9;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+            
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .modal-video {
+                height: 300px;
+            }
+            
+            .modal-content {
+                width: 95%;
+            }
+            
+            .modal-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .modal-controls .btn {
+                width: 100%;
+            }
+            
+            .arquivo-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .arquivo-link, .arquivo-download {
+                align-self: stretch;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Tela de Login -->
     <div class="login-container" id="login-container">
         <div class="logo">🎓</div>
         <h1 class="login-title">Plataforma de Treinamento</h1>
-        <p class="login-subtitle">Faça login para acessar o conteúdo</p>
+        <p class="login-subtitle">Selecione seu usuário para acessar o conteúdo</p>
         
         <div class="error-message" id="error-message"></div>
         
         <div class="form-group">
-            <label class="form-label">Selecione seu usuário:</label>
+            <label class="form-label">Selecione seu Usuário:</label>
             <select class="form-select" id="select-usuario">
                 <option value="">Carregando usuários...</option>
             </select>
@@ -562,15 +698,16 @@
         </div>
     </div>
 
-    <!-- Plataforma -->
     <div class="platform-container" id="platform-container">
         <div class="container">
-            <!-- Sidebar -->
             <div class="sidebar">
                 <div class="user-info">
                     <div class="user-avatar" id="user-avatar">U</div>
                     <h3 id="user-name">Usuário</h3>
                     <p>Bem-vindo ao treinamento!</p>
+                    <button class="acessos-btn" onclick="abrirAcessos()">
+                        📁 Meus Acessos
+                    </button>
                     <button class="logout-btn" onclick="fazerLogout()">Sair</button>
                 </div>
                 
@@ -596,24 +733,20 @@
                 </div>
             </div>
             
-            <!-- Conteúdo Principal -->
             <div class="main-content">
                 <div class="header">
                     <h1>Plataforma de Treinamento</h1>
                     <div class="search-box">
-                        <input type="text" placeholder="Buscar aulas..." id="buscar-aula" 
-                               style="padding: 12px; border: 2px solid #ddd; border-radius: 8px; width: 250px;">
+                        <input type="text" placeholder="Buscar aulas..." id="buscar-aula">
                     </div>
                 </div>
                 
-                <!-- Lista de Categorias e Aulas -->
                 <div id="lista-categorias">
                     <div class="loading">Carregando aulas...</div>
                 </div>
             </div>
         </div>
         
-        <!-- Modal de Vídeo -->
         <div class="modal" id="video-modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -621,103 +754,177 @@
                     <button class="close-modal" onclick="fecharModal()">×</button>
                 </div>
                 <div class="modal-body">
-                    <iframe class="modal-video" id="modal-video" 
-                            allow="autoplay; fullscreen" 
-                            allowfullscreen>
-                    </iframe>
+                    <iframe class="modal-video" id="modal-video" allow="autoplay; fullscreen" allowfullscreen></iframe>
                 </div>
                 <div class="modal-controls">
-                    <button class="btn-outline" onclick="aulaAnterior()" id="btn-anterior">
-                        ← Aula Anterior
-                    </button>
-                    <button class="btn btn-primary" onclick="marcarComoConcluida()" id="btn-concluir">
-                        ✅ Marcar como Concluída
-                    </button>
-                    <button class="btn-outline" onclick="proximaAula()" id="btn-proximo">
-                        Próxima Aula →
-                    </button>
+                    <button class="btn-outline" onclick="aulaAnterior()" id="btn-anterior">← Aula Anterior</button>
+                    <button class="btn btn-primary" onclick="alternarConclusao()" id="btn-concluir">✅ Marcar como Concluída</button>
+                    <button class="btn-outline" onclick="proximaAula()" id="btn-proximo">Próxima Aula →</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-acessos" id="acessos-modal">
+            <div class="modal-acessos-content">
+                <div class="modal-acessos-header">
+                    <div class="modal-acessos-title">📁 Meus Acessos</div>
+                    <button class="close-modal" onclick="fecharAcessos()">×</button>
+                </div>
+                <div class="modal-acessos-body" id="acessos-lista">
+                    <div class="loading">Carregando seus acessos...</div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // URLs das APIs
-        const API_USUARIOS = "https://script.google.com/macros/s/AKfycbzaAF6RoDCbg3x5gAcRq-wm9uUcsh77NDKo4ORAa_HiL5vlhxsqzCdFeI7uUTx3qeDFQQ/exec";
-        const API_AULAS = "https://script.google.com/macros/s/AKfycbzHoYUJ8INDFlmvd_BFkAh0SUCCBDEhs_nRIvb84VUgmzH9Q0X_S_Bgdmyc85CdVJrDqQ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzVX2mrsSyf-jLZRsW8YzoX6TM9XQ5yJ1Ry-Gw3b_bQ_K3d682_jwr4LXteIR6YmHLkRg/exec";
+        const API_AULAS = "https://script.google.com/macros/s/AKfycbzVX2mrsSyf-jLZRsW8YzoX6TM9XQ5yJ1Ry-Gw3b_bQ_K3d682_jwr4LXteIR6YmHLkRg/exec";
         
         let usuarioLogado = null;
         let todasAulas = [];
         let aulasPorCategoria = {};
         let aulaAtual = null;
         let categoriasAbertas = {};
-        
+        let arquivosAcesso = [];
         let progressoAulas = {};
         let aulasConcluidas = [];
-        let usuariosMap = {};
+        let listaUsuarios = [];
 
         document.addEventListener('DOMContentLoaded', function() {
-            carregarUsuarios();
+            carregarListaUsuarios();
             
             document.getElementById('input-senha').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    fazerLogin();
-                }
+                if (e.key === 'Enter') fazerLogin();
+            });
+            
+            document.getElementById('select-usuario').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') fazerLogin();
             });
         });
 
-        function carregarUsuarios() {
-            fetch(API_USUARIOS + '?action=usuarios')
+        function carregarListaUsuarios() {
+            const selectUsuario = document.getElementById('select-usuario');
+            selectUsuario.innerHTML = '<option value="">Carregando usuários...</option>';
+            
+            fetch(`${API_URL}?tipo=usuarios`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        popularSelectUsuarios(data.usuarios);
-                    } else {
-                        // Fallback para usuários de demonstração
-                        const usuariosDemo = [
-                            { codigo: "1", apelido: "João Silva" },
-                            { codigo: "2", apelido: "Maria Santos" },
-                            { codigo: "3", apelido: "Pedro Oliveira" },
-                            { codigo: "4", apelido: "Ana Costa" }
-                        ];
-                        popularSelectUsuarios(usuariosDemo);
+                    if (data.status === "ok" && data.dados && data.dados.length > 0) {
+                        listaUsuarios = data.dados;
+                        const usuariosComAcesso = listaUsuarios.filter(usuario => {
+                            const temAcesso = usuario['acesso treinamento'] && 
+                                            usuario['acesso treinamento'].toString().toLowerCase() === 'sim';
+                            return usuario.codigo && usuario.apelido && temAcesso;
+                        });
+                        
+                        selectUsuario.innerHTML = '<option value="">Selecione seu usuário</option>';
+                        usuariosComAcesso.forEach(usuario => {
+                            const option = document.createElement('option');
+                            option.value = usuario.codigo;
+                            option.textContent = usuario.apelido;
+                            selectUsuario.appendChild(option);
+                        });
                     }
                 })
-                .catch(err => {
-                    console.error('Erro ao carregar usuários:', err);
-                    // Fallback para usuários de demonstração
-                    const usuariosDemo = [
-                        { codigo: "1", apelido: "João Silva" },
-                        { codigo: "2", apelido: "Maria Santos" },
-                        { codigo: "3", apelido: "Pedro Oliveira" },
-                        { codigo: "4", apelido: "Ana Costa" }
-                    ];
-                    popularSelectUsuarios(usuariosDemo);
+                .catch(() => {
+                    selectUsuario.innerHTML = '<option value="">Erro ao carregar usuários</option>';
                 });
         }
 
-        function popularSelectUsuarios(usuarios) {
-            const select = document.getElementById('select-usuario');
-            select.innerHTML = '<option value="">Selecione seu usuário</option>';
+        function atualizarDadosUsuario(dados) {
+            if (!usuarioLogado || !usuarioLogado.codigo) return;
             
-            usuariosMap = {};
+            const payload = {
+                tipo: 'usuarios',
+                codigo: usuarioLogado.codigo,
+                ...dados
+            };
             
-            usuarios.forEach(usuario => {
-                usuariosMap[usuario.apelido] = usuario.codigo;
-                
-                const option = document.createElement('option');
-                option.value = usuario.apelido;
-                option.textContent = usuario.apelido;
-                option.setAttribute('data-codigo', usuario.codigo);
-                select.appendChild(option);
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(() => {
+                atualizarDadosFallback(payload);
             });
         }
 
+        function registrarLogAcesso(arquivo) {
+            if (!usuarioLogado || !usuarioLogado.codigo) return;
+            
+            const dadosLog = {
+                tipo: 'logs',
+                codigo: usuarioLogado.codigo,
+                apelido: usuarioLogado.apelido,
+                acessou: arquivo.nome,
+                local: arquivo.link,
+                tipo: arquivo.tipo && arquivo.tipo.toLowerCase() === 'download' ? 'download' : 'link'
+            };
+            
+            const params = new URLSearchParams();
+            params.append('tipo', 'logs');
+            params.append('codigo', dadosLog.codigo);
+            params.append('apelido', dadosLog.apelido);
+            params.append('acessou', dadosLog.acessou);
+            params.append('local', dadosLog.local);
+            params.append('tipo', dadosLog.tipo);
+            
+            fetch(`${API_URL}?${params.toString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status !== "ok") {
+                        registrarLogViaPOST(dadosLog);
+                    }
+                })
+                .catch(() => {
+                    registrarLogViaPOST(dadosLog);
+                });
+        }
+
+        function registrarLogViaPOST(dadosLog) {
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dadosLog)
+            });
+        }
+
+        function abrirLinkComLog(arquivoNome, arquivoLink, arquivoTipo, event) {
+            event.preventDefault();
+            
+            const arquivo = {
+                nome: arquivoNome,
+                link: arquivoLink,
+                tipo: arquivoTipo
+            };
+            
+            registrarLogAcesso(arquivo);
+            
+            setTimeout(() => {
+                window.open(arquivoLink, '_blank');
+                fecharAcessos();
+            }, 500);
+        }
+
+        function atualizarDadosFallback(payload) {
+            const params = new URLSearchParams();
+            params.append('tipo', 'usuarios');
+            params.append('codigo', payload.codigo);
+            
+            if (payload['aulas concluídas']) params.append('aulas concluídas', payload['aulas concluídas']);
+            if (payload['aulas disponíveis']) params.append('aulas disponíveis', payload['aulas disponíveis']);
+            if (payload['ultimo acesso']) params.append('ultimo acesso', payload['ultimo acesso']);
+            
+            fetch(`${API_URL}?${params.toString()}`, { method: 'GET' });
+        }
+
         function fazerLogin() {
-            const nomeUsuario = document.getElementById('select-usuario').value;
+            const selectUsuario = document.getElementById('select-usuario');
+            const codigo = selectUsuario.value;
             const senha = document.getElementById('input-senha').value;
             
-            if (!nomeUsuario) {
+            if (!codigo) {
                 mostrarErro('Selecione um usuário');
                 return;
             }
@@ -727,42 +934,38 @@
                 return;
             }
             
-            const codigo = usuariosMap[nomeUsuario];
-            
-            if (!codigo) {
-                mostrarErro('Usuário não encontrado');
-                return;
-            }
-            
             document.getElementById('btn-login').style.display = 'none';
             document.getElementById('login-loading').style.display = 'block';
             
-            // Tenta fazer login na API
-            fetch(API_USUARIOS + `?action=login&codigo=${codigo}&senha=${senha}`)
+            const urlLogin = `${API_URL}?codigo=${codigo}&senha=${senha}`;
+            
+            fetch(urlLogin)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
+                    if (data.status === "ok") {
                         usuarioLogado = data.usuario;
+                        arquivosAcesso = data.arquivosAcesso || [];
                         entrarNaPlataforma();
                     } else {
-                        // Fallback: senha = código + 1125
-                        const senhaEsperada = (parseInt(codigo) + 1125).toString();
-                        if (senha === senhaEsperada) {
-                            usuarioLogado = { codigo: codigo, apelido: nomeUsuario };
-                            entrarNaPlataforma();
-                        } else {
-                            mostrarErro(data.erro || 'Senha incorreta');
-                        }
+                        mostrarErro(data.mensagem || 'Erro no login');
                     }
                 })
-                .catch(err => {
-                    // Fallback: senha = código + 1125
+                .catch(() => {
                     const senhaEsperada = (parseInt(codigo) + 1125).toString();
                     if (senha === senhaEsperada) {
-                        usuarioLogado = { codigo: codigo, apelido: nomeUsuario };
+                        const usuarioEncontrado = listaUsuarios.find(u => u.codigo == codigo);
+                        usuarioLogado = { 
+                            codigo: codigo, 
+                            apelido: usuarioEncontrado ? usuarioEncontrado.apelido : `Usuário ${codigo}`,
+                            aulasConcluidas: '0',
+                            aulasDisponiveis: '0',
+                            ultimoAcesso: 'Nunca',
+                            acessoTreinamento: true
+                        };
+                        arquivosAcesso = [];
                         entrarNaPlataforma();
                     } else {
-                        mostrarErro('Erro de conexão. Tente novamente.');
+                        mostrarErro('Senha incorreta');
                     }
                 })
                 .finally(() => {
@@ -780,8 +983,59 @@
             document.getElementById('login-container').style.display = 'none';
             document.getElementById('platform-container').style.display = 'block';
             
+            const dataAtual = new Date();
+            const dataFormatada = formatarDataRondonia(dataAtual);
+            
+            atualizarDadosUsuario({ 'ultimo acesso': dataFormatada });
+            
             carregarAulas();
             document.getElementById('buscar-aula').addEventListener('input', filtrarAulas);
+        }
+
+        function formatarDataRondonia(data) {
+            const dia = String(data.getDate()).padStart(2, '0');
+            const mes = String(data.getMonth() + 1).padStart(2, '0');
+            const ano = data.getFullYear();
+            const horas = String(data.getHours()).padStart(2, '0');
+            const minutos = String(data.getMinutes()).padStart(2, '0');
+            const segundos = String(data.getSeconds()).padStart(2, '0');
+            
+            return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
+        }
+
+        function abrirAcessos() {
+            const modal = document.getElementById('acessos-modal');
+            const lista = document.getElementById('acessos-lista');
+            
+            if (arquivosAcesso.length === 0) {
+                lista.innerHTML = '<div class="sem-acessos"><h3>Nenhum acesso disponível</h3><p>Você não tem arquivos liberados no momento.</p></div>';
+            } else {
+                let html = '';
+                arquivosAcesso.forEach(arquivo => {
+                    const isDownload = arquivo.tipo && arquivo.tipo.toLowerCase() === 'download';
+                    const botaoClass = isDownload ? 'arquivo-download' : 'arquivo-link';
+                    const botaoText = isDownload ? '📥 Download' : '🔗 Acessar';
+                    
+                    html += `
+                        <div class="arquivo-item">
+                            <div class="arquivo-info">
+                                <div class="arquivo-nome">${arquivo.nome}</div>
+                                <div class="arquivo-tipo">${isDownload ? 'Download' : 'Link'}</div>
+                            </div>
+                            ${arquivo.link ? `
+                                <a href="${arquivo.link}" class="${botaoClass}" onclick="abrirLinkComLog('${arquivo.nome.replace(/'/g, "\\'")}', '${arquivo.link}', '${arquivo.tipo || 'link'}', event)">${botaoText}</a>
+                            ` : '<span style="color: #95a5a6;">Sem link</span>'}
+                        </div>
+                    `;
+                });
+                lista.innerHTML = html;
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function fecharAcessos() {
+            document.getElementById('acessos-modal').style.display = 'none';
         }
 
         function carregarDadosUsuario() {
@@ -806,9 +1060,12 @@
         function fazerLogout() {
             if (confirm('Deseja realmente sair?')) {
                 usuarioLogado = null;
+                arquivosAcesso = [];
                 document.getElementById('platform-container').style.display = 'none';
                 document.getElementById('login-container').style.display = 'block';
                 document.getElementById('input-senha').value = '';
+                document.getElementById('select-usuario').selectedIndex = 0;
+                carregarListaUsuarios();
             }
         }
 
@@ -816,29 +1073,24 @@
             const errorDiv = document.getElementById('error-message');
             errorDiv.textContent = mensagem;
             errorDiv.style.display = 'block';
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-            }, 5000);
+            setTimeout(() => errorDiv.style.display = 'none', 5000);
         }
 
         function carregarAulas() {
             fetch(API_AULAS)
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Dados recebidos da API:', data);
-                    
                     if (data.dados && data.dados.length > 0) {
                         processarDadosGoogleSheets(data.dados);
                         atualizarEstatisticas();
-                    } else {
-                        document.getElementById('lista-categorias').innerHTML = 
-                            '<div class="loading">Nenhuma aula encontrada na planilha</div>';
+                        const totalAulas = todasAulas.length;
+                        if (totalAulas > 0) {
+                            atualizarDadosUsuario({ 'aulas disponíveis': totalAulas.toString() });
+                        }
                     }
                 })
-                .catch(err => {
-                    console.error('Erro ao carregar aulas:', err);
-                    document.getElementById('lista-categorias').innerHTML = 
-                        '<div class="loading">Erro ao carregar aulas. Verifique a conexão.</div>';
+                .catch(() => {
+                    document.getElementById('lista-categorias').innerHTML = '<div class="loading">Erro ao carregar aulas</div>';
                 });
         }
 
@@ -852,17 +1104,11 @@
                 const url = item.url || "";
                 let tipo = item.tipo || "video";
                 
-                // Normaliza o tipo para aceitar "video", "vídeo", "pdf", "Pdf"
                 tipo = tipo.toLowerCase();
-                if (tipo.includes('vídeo')) {
-                    tipo = 'video';
-                }
+                if (tipo.includes('vídeo')) tipo = 'video';
                 
-                // Filtra apenas vídeos e PDFs com URL válida do Google Drive
                 if (url && url.includes('drive.google.com') && (tipo === 'video' || tipo === 'pdf')) {
-                    if (!aulasPorCategoria[categoria]) {
-                        aulasPorCategoria[categoria] = [];
-                    }
+                    if (!aulasPorCategoria[categoria]) aulasPorCategoria[categoria] = [];
                     
                     const aula = {
                         nome: nome,
@@ -880,7 +1126,6 @@
         }
 
         function converterUrlParaEmbed(url) {
-            // Converte URL normal do Google Drive para URL de embed
             if (url.includes('/file/d/')) {
                 const videoId = url.split('/file/d/')[1].split('/')[0];
                 return `https://drive.google.com/file/d/${videoId}/preview`;
@@ -892,12 +1137,7 @@
             const container = document.getElementById('lista-categorias');
             
             if (Object.keys(aulasPorCategoria).length === 0) {
-                container.innerHTML = `
-                    <div class="loading">
-                        <p>Nenhum vídeo encontrado na planilha.</p>
-                        <p>Verifique se os links são do Google Drive e estão no formato correto.</p>
-                    </div>
-                `;
+                container.innerHTML = '<div class="loading">Nenhum vídeo encontrado</div>';
                 return;
             }
 
@@ -910,8 +1150,7 @@
 
                 html += `
                     <div class="categoria">
-                        <div class="categoria-header ${categoriaAberta ? 'aberta' : ''} ${categoriaConcluida ? 'concluida' : ''}" 
-                             onclick="toggleCategoria('${categoria}')">
+                        <div class="categoria-header ${categoriaAberta ? 'aberta' : ''} ${categoriaConcluida ? 'concluida' : ''}" onclick="toggleCategoria('${categoria}')">
                             <div>
                                 <div class="categoria-title">${categoria}</div>
                                 <div class="categoria-progress">${aulasConcluidasCategoria}/${aulas.length} concluídas</div>
@@ -934,22 +1173,13 @@
                                 const percentual = progresso.percentual || 0;
                                 
                                 return `
-                                <div class="aula ${classes}" 
-                                     onclick="abrirAula('${aula.nome.replace(/'/g, "\\'")}', '${aula.url}', '${categoria.replace(/'/g, "\\'")}', ${index})">
-                                    <div class="aula-status">
-                                        ${concluida ? '✓' : (assistindo ? '▶' : (index + 1))}
-                                    </div>
+                                <div class="aula ${classes}" onclick="abrirAula('${aula.nome.replace(/'/g, "\\'")}', '${aula.url}', '${categoria.replace(/'/g, "\\'")}', ${index})">
+                                    <div class="aula-status">${concluida ? '✓' : (assistindo ? '▶' : (index + 1))}</div>
                                     <div class="aula-info">
                                         <div class="aula-nome">${aula.nome}</div>
-                                        ${percentual > 0 ? `
-                                            <div class="aula-progresso">
-                                                <div class="aula-progresso-interno" style="width: ${percentual}%"></div>
-                                            </div>
-                                        ` : ''}
+                                        ${percentual > 0 ? `<div class="aula-progresso"><div class="aula-progresso-interno" style="width: ${percentual}%"></div></div>` : ''}
                                     </div>
-                                    ${tempoAssistido ? `
-                                        <div class="aula-tempo">${tempoAssistido}</div>
-                                    ` : ''}
+                                    ${tempoAssistido ? `<div class="aula-tempo">${tempoAssistido}</div>` : ''}
                                 </div>
                                 `;
                             }).join('')}
@@ -965,23 +1195,18 @@
             const aulasContainer = document.getElementById(`aulas-${categoria.replace(/\s+/g, '-')}`);
             const estaAberta = categoriaElement.classList.contains('aberta');
             
-            // Fecha todas as outras categorias
             document.querySelectorAll('.categoria-header.aberta').forEach(header => {
-                if (header !== categoriaElement) {
+                const outrasCategoria = header.getAttribute('onclick').match(/toggleCategoria\('([^']+)'\)/)[1];
+                const outrasAulas = document.getElementById(`aulas-${outrasCategoria.replace(/\s+/g, '-')}`);
+                
+                if (outrasAulas) {
                     header.classList.remove('aberta');
-                    const outrasAulas = header.nextElementSibling;
-                    if (outrasAulas && outrasAulas.classList.contains('aulas-container')) {
-                        outrasAulas.style.display = 'none';
-                    }
+                    outrasAulas.style.display = 'none';
+                    categoriasAbertas[outrasCategoria] = false;
                 }
             });
             
-            // Alterna a categoria atual
-            if (estaAberta) {
-                categoriaElement.classList.remove('aberta');
-                aulasContainer.style.display = 'none';
-                categoriasAbertas[categoria] = false;
-            } else {
+            if (!estaAberta) {
                 categoriaElement.classList.add('aberta');
                 aulasContainer.style.display = 'grid';
                 categoriasAbertas[categoria] = true;
@@ -1004,6 +1229,7 @@
             
             iniciarMonitoramentoProgresso();
             atualizarBotoesNavegacao();
+            atualizarBotaoConclusao();
         }
 
         function fecharModal() {
@@ -1014,7 +1240,6 @@
             renderizarCategorias();
             atualizarEstatisticas();
             salvarDadosUsuario();
-            
             verificarCategoriasConcluidas();
         }
 
@@ -1062,24 +1287,54 @@
             }
         }
 
-        function marcarComoConcluida() {
+        function alternarConclusao() {
             if (!aulaAtual) return;
             
-            if (!aulasConcluidas.includes(aulaAtual.nome)) {
+            const btnConcluir = document.getElementById('btn-concluir');
+            const jaConcluida = aulasConcluidas.includes(aulaAtual.nome);
+            
+            if (jaConcluida) {
+                const index = aulasConcluidas.indexOf(aulaAtual.nome);
+                aulasConcluidas.splice(index, 1);
+                
+                if (progressoAulas[aulaAtual.nome]) progressoAulas[aulaAtual.nome].percentual = 0;
+                
+                btnConcluir.textContent = '✅ Marcar como Concluída';
+                btnConcluir.className = 'btn btn-primary';
+            } else {
                 aulasConcluidas.push(aulaAtual.nome);
                 
-                if (progressoAulas[aulaAtual.nome]) {
-                    progressoAulas[aulaAtual.nome].percentual = 100;
-                }
+                if (progressoAulas[aulaAtual.nome]) progressoAulas[aulaAtual.nome].percentual = 100;
                 
-                const btnConcluir = document.getElementById('btn-concluir');
-                btnConcluir.textContent = '✅ Concluída!';
-                btnConcluir.style.background = '#27ae60';
-                btnConcluir.disabled = true;
-                
-                setTimeout(() => {
-                    fecharModal();
-                }, 1500);
+                btnConcluir.textContent = '↶ Desmarcar Conclusão';
+                btnConcluir.className = 'btn btn-warning';
+            }
+            
+            const totalConcluidas = aulasConcluidas.length;
+            const totalDisponiveis = todasAulas.length;
+            
+            atualizarDadosUsuario({
+                'aulas concluídas': totalConcluidas.toString(),
+                'aulas disponíveis': totalDisponiveis.toString()
+            });
+            
+            renderizarCategorias();
+            atualizarEstatisticas();
+            salvarDadosUsuario();
+        }
+
+        function atualizarBotaoConclusao() {
+            if (!aulaAtual) return;
+            
+            const btnConcluir = document.getElementById('btn-concluir');
+            const jaConcluida = aulasConcluidas.includes(aulaAtual.nome);
+            
+            if (jaConcluida) {
+                btnConcluir.textContent = '↶ Desmarcar Conclusão';
+                btnConcluir.className = 'btn btn-warning';
+            } else {
+                btnConcluir.textContent = '✅ Marcar como Concluída';
+                btnConcluir.className = 'btn btn-primary';
             }
         }
 
@@ -1123,9 +1378,7 @@
             const concluidas = aulasConcluidas.length;
             const progresso = totalAulas > 0 ? (concluidas / totalAulas) * 100 : 0;
             
-            const assistindo = Object.values(progressoAulas).filter(p => 
-                p.percentual > 5 && p.percentual < 95
-            ).length;
+            const assistindo = Object.values(progressoAulas).filter(p => p.percentual > 5 && p.percentual < 95).length;
             
             document.getElementById('progresso-geral').style.width = `${progresso}%`;
             document.getElementById('texto-progresso').textContent = `${Math.round(progresso)}% concluído`;
@@ -1149,9 +1402,7 @@
             
             const aulasFiltradasPorCategoria = {};
             aulasFiltradas.forEach(aula => {
-                if (!aulasFiltradasPorCategoria[aula.categoria]) {
-                    aulasFiltradasPorCategoria[aula.categoria] = [];
-                }
+                if (!aulasFiltradasPorCategoria[aula.categoria]) aulasFiltradasPorCategoria[aula.categoria] = [];
                 aulasFiltradasPorCategoria[aula.categoria].push(aula);
             });
             
@@ -1169,13 +1420,16 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 fecharModal();
+                fecharAcessos();
             }
         });
 
         document.getElementById('video-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                fecharModal();
-            }
+            if (e.target === this) fecharModal();
+        });
+
+        document.getElementById('acessos-modal').addEventListener('click', function(e) {
+            if (e.target === this) fecharAcessos();
         });
     </script>
 </body>
